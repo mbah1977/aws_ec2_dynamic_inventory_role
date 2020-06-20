@@ -15,8 +15,8 @@
      regexp: "{{ item.0 }}"
      replace: "{{ item.1 }}"
   with_together:
-    - ["^#inventory(.+)","^#private_key(.+)","^#host_key_checking(.+)"]
-    - ["inventory = {{ path_to_your_inventory_dir }}","private_key_file  = {{ path_to_your_aws_private_key }}","host_key_checking = False"]
+    - ["^#inventory(.+)", "^#private_key(.+)", "^#host_key_checking(.+)"]
+    - ["inventory = {{ path_to_your_inventory_dir }}", "private_key_file  = {{ path_to_your_aws_private_key }}", "host_key_checking = False"]
 
 
 - name: Making an entry in the ansible config file to point Ansible to the location of dynamic inventory script.
