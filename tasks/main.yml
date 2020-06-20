@@ -1,0 +1,27 @@
+---
+# The entire code, including the Python script, has been written with the assumption that Ansible has already been installed on the control node,
+# # that the AWS CLI has been set up to enable your Ansible control node to talk to your AWS account by CLI.
+# and that you have the AWS private key pair to be used by your Ansible_user to connect to EC2 instances via SSH.
+# Variables are in the vars/main.yml file
+
+- name: Creating a directory to keep dynamic inventory script. The script can be found in the this role's templates directory
+  file:
+      path: "{{path_to_your_inventory_dir}}"
+      state: directory
+      mode: '0755'
+- name: Makig entries into the ansible.cfg file to  disable host_key_checking, and to instruct Ansible to use the AWS generated private key (.pem file) to authenticate with EC2 instances
+  replace:
+     path: "{{path_to_your_ansible_cfg_file}}"
+     regexp: "{{ item.0 }}"
+     replace: "{{ item.1 }}"
+  with_together:
+    - ["^#inventory(.+)","^#private_key(.+)","^#host_key_checking(.+)"]
+    - ["inventory = {{path_to_your_inventory_dir}}","private_key_file  = {{path_to_your_aws_private_key}}","host_key_checking = False"]
+
+
+- name: Making an entry in the ansible config file to point Ansible to the location of dynamic inventory script.
+       #The script is in this role's templates directory.
+  template:
+     src: 'dynamic_inventory.j2'
+     dest: "{{path_to_your_inventory_dir}}/dynamic_inventory.py"
+     mode: '0755'

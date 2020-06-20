@@ -1,0 +1,9 @@
+---
+# vars file for aws_ec2_dynamic_inventory_role
+# Replace the values with yours.
+
+path_to_your_inventory_dir: '/etc/ansible/inventory'
+path_to_your_ansible_cfg_file: '/etc/ansible/ansible.cfg'
+path_to_your_aws_private_key: '/root/awskeynow.pem'
+
+# Note* - Replace entries in the templates/dynamic_inventory.j2 script with yours before implementing this role.

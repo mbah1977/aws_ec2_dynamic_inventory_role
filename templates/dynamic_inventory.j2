@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+#This script uses the AWS CLI to make API calls to AWS to retrieve needed information about EC2 instances
+#Make you have set up AWS CLI on your Ansible control node  or on any managed node to be delegated to for this, else the script will fail.
+
+
+#Importing required Python modules 
+import json
+import os
+
+
+
+
+#Creating inventory groups . 
+#In my case the inventory groups are web_grp, db_grp and app_grp.  
+#Replace them with your own group names and add more if applicable. 
+
+inventory={}
+
+inventory['web_grp']={}
+inventory['web_grp']['hosts']=[]
+
+inventory['db_grp']={}
+inventory['db_grp']['hosts']=[]
+
+inventory['app_grp']={}
+inventory['app_grp']['hosts']=[]
+
+
+
+
+
+#Making a call to AWS to retrieve raw information about EC2 instances
+
+payload=os.popen('aws ec2 describe-instances')
+
+
+
+
+#Reorganizing data retrieved from AWS. Uncomment the print(payload) line below if you want to see all the unfiltered data 
+
+payload=iter(payload.read().split())
+#print(payload)
+
+
+
+
+#Filtering EC2 instances by public DNS hostnames from the payload. You can filter by IP address  by replacing "PublicDnsName" with "PublicIpAddress"
+#or with some other identifier obtained from the output of the print(payload) above.
+
+all_ec2_instances=[payload.next().replace(',','').replace('\"','') for item in payload if item == '"PublicDnsName":']
+
+
+
+
+#This block of code is applying conditional statements to identify hosts  to be assigned to specific inventory groups. 
+#Replace the group names with yours and set the IF statements to suit your purpose. 
+#This is what the code is doing. It is looping through the list of EC2 instances pulled down from your AWS account and filtering 
+#those that fulfill certain conditions (IF statements) and adding them to specific groups
+
+inventory['web_grp']['hosts']=[item for item in set(all_ec2_instances) if item.startswith('ec2')] #if hostname starts with something
+inventory['db_grp']['hosts']=[item for item in set(all_ec2_instances) if 'axx' in item]  # if a hostname contains a pattern
+inventory['app_grp']['hosts']=[item for item in set(all_ec2_instances) if item.endswith('something')] # if hostname ends with something
+
+#Put the group name above as a value for the hosts attribute in your playbook, and only hosts falling under the group will be targeted by ansible.
+
+print(json.dumps(inventory))
+
